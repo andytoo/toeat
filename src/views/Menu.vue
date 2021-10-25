@@ -19,7 +19,7 @@ export default {
     components: { Category, Total },
     data() { 
         return {
-            URL: process.env.VUE_APP_IMAGE_SERVICE_URL,
+            URL: process.env.VUE_APP_IMAGE_SERVICE_URI,
             total: 0
         }
     },

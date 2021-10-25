@@ -19,7 +19,7 @@ export default {
     props: { restaurant: Object },
     data() {
         return {
-            URL: process.env.VUE_APP_IMAGE_SERVICE_URL
+            URL: process.env.VUE_APP_IMAGE_SERVICE_URI
         }
     }
 }
