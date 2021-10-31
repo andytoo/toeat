@@ -10,26 +10,23 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 
-import RestaurantService from '@/services/RestaurantService'
+import OrderService from '@/services/OrderService'
 
 export default {
     props: ['total'],
     methods: {
-        ...mapActions(['setMsg', 'setLoading', 'submitCart']),
+        ...mapActions(['setMsg', 'setLoading', 'submitOrder']),
         async addToCart() {
             this.setLoading(true)
 
             try {
                 let cart = this.getOrderByRestaurantId(this.$route.params.id)
-                let resp = await RestaurantService.submitCart((cart))
+                let resp = await OrderService.submitOrder((cart))
 
-                this.submitCart(cart)
-
+                this.submitOrder(resp.data)
                 this.setMsg("Order Submited")
-                setTimeout(() => { this.setMsg(null) }, 1500)
             } catch (err) {
                 this.setMsg(err.response.data.message)
-                setTimeout(() => { this.setMsg(null) }, 1500)
             }
 
             this.setLoading(false)

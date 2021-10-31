@@ -8,7 +8,9 @@
             <div class="hidden md:block">
                 <router-link class="navbar-menu" :to="{ name: 'Home' }"><i class="fas fa-home"/> Home</router-link>
                 <router-link class="navbar-menu" :to="{ name: 'Cart' }"><i class="fas fa-shopping-cart"/> Cart</router-link>
-                <router-link class="navbar-menu" :to="{ name: 'About' }"><i class="fas fa-address-book"/> About</router-link>
+                <router-link class="navbar-menu" v-if="!isUserSignedIn" :to="{ name: 'SignIn' }"><i class="fas fa-sign-in-alt" /> Sign In</router-link>
+                <button class="navbar-menu" v-if="isUserSignedIn" @click="signOut"><i class="fas fa-sign-out-alt" /> Sign Out</button>
+                <!-- <router-link class="navbar-menu" :to="{ name: 'About' }"><i class="fas fa-address-book"/> About</router-link> -->
             </div>
         </div>
     </div>
@@ -17,15 +19,30 @@
         <span @click="toggleSidebar" class="block text-4xl pt-5 px-3"><i class="fas fa-times" /></span>
         <router-link class="sidebar-menu" :to="{ name: 'Home' }">Home</router-link>
         <router-link class="sidebar-menu" :to="{ name: 'Cart' }">Cart</router-link>
-        <router-link class="sidebar-menu" :to="{ name: 'About' }">About</router-link>
+        <router-link class="sidebar-menu" v-if="!isUserSignedIn" :to="{ name: 'SignIn' }">Sign In</router-link>
+        <router-link class="sidebar-menu" v-if="!isUserSignedIn" :to="{ name: 'SignIn' }">Sign Out</router-link>
+        <button class="sidebar-menu mx-auto" v-if="isUserSignedIn" @click="signOut">Sign Out</button>
+        <!-- <router-link class="sidebar-menu" :to="{ name: 'About' }">About</router-link> -->
     </div>
     <div class="right-0" :class="{ 'fixed top-0 right-1/2 bottom-0 left-0 bg-black bg-opacity-50 z-40 left-slide-transition' : sidebar }" @click="toggleSidebar"> </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import AuthService from '@/services/AuthService'
+
 export default {
     data() { return { sidebar: false } },
-    methods: { toggleSidebar() { this.sidebar = !this.sidebar } }
+    methods: { 
+        toggleSidebar() { this.sidebar = !this.sidebar },
+        signOut() {
+            AuthService.signOut()
+            this.$router.push({ name: 'SignIn' })
+        }
+    },
+    computed: {
+        ...mapGetters(['isUserSignedIn'])
+    }
 }
 </script>
 

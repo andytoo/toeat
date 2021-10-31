@@ -1,10 +1,14 @@
 import { createStore } from 'vuex'
-import RestaurantService from '@/services/RestaurantService'
+import TokenService from '@/services/TokenService'
 
 export default createStore({
   state: {
     msg: null,
     isLoading: false,
+
+    // User
+    user: TokenService.getUser() || {},
+    isUserSignedIn: TokenService.isUserSignedIn() || false,
 
     // Pagination
     page: 1,
@@ -15,7 +19,8 @@ export default createStore({
     restaurant: {},
 
     // Cart
-    carts: []
+    cart: [],
+    pendingCart: []
   },
   mutations: {
     setMsg: (state, data) => {
@@ -23,6 +28,12 @@ export default createStore({
     },
     setLoading: (state, data) => {
       state.isLoading = data
+    },
+    setUser: (state, data) => {
+      state.user = data
+    },
+    setIsUserSignedIn: (state, data) => {
+      state.isUserSignedIn = data
     },
     setRestaurants: (state, data) => {
       state.restaurants = data
@@ -36,23 +47,32 @@ export default createStore({
     findRestaurantById: (state, id) => {
       state.restaurants.find(restaurant => { if (restaurant.id == id) state.restaurant = restaurant })
     },
-    addOrderToCart: (state, { order, isEmpty }) => {
+    addOrderToPendingCart: (state, { order, isEmpty }) => {
       if (!isEmpty) {
-        state.carts.find(data => data = order)
+        state.pendingCart.find(data => data = order)
       } else {
-        state.carts.push(order)
+        state.pendingCart.push(order)
       }
     },
-    updateOrderStatus: (state, restaurantId) => {
-      state.carts.find(data => { if (data.restaurantId == restaurantId) data.isSubmit = true } )
+    removeFromPendingCart: (state, restaurantId) => {
+      state.pendingCart = state.pendingCart.filter(data => data.restaurantId !== restaurantId)
+    },
+    updateCart: (state, data) => {
+      state.cart = data
     }
   },
   actions: {
     setMsg: ({commit}, data) => {
       commit('setMsg', data)
+      setTimeout(() => { commit('setMsg', null) }, 1500)
     },
     setLoading: ({commit}, data) => {
       commit('setLoading', data)
+    },
+    setUser: ({commit}, data) => {
+      commit('setUser', data)
+      if (Object.keys(data).length === 0) commit('setIsUserSignedIn', false)
+      else commit('setIsUserSignedIn', true)
     },
     setRestaurant: ({ commit }, data) => {
       commit('setRestaurants', data)
@@ -71,8 +91,7 @@ export default createStore({
         order = {}
         order.restaurantId = id
         order.restaurantName = name
-        order.phone = '09123456789' //TODO PHONE
-        order.isSubmit = false
+        order.phone = state.user.phone
       }
 
       let total = 0
@@ -98,10 +117,13 @@ export default createStore({
       }
 
       order.total = total
-      commit('addOrderToCart', { order, isEmpty })
+      commit('addOrderToPendingCart', { order, isEmpty })
     },
-    submitCart({commit}, data) {
-      commit('updateOrderStatus', data.restaurantId)
+    submitOrder({commit}, data) {
+      commit('removeFromPendingCart', data.restaurantId)
+    },
+    updateCart({commit}, data) {
+      commit('updateCart', data)
     },
     goToPage: ({ dispatch, getters }, page) => {
       if (page > 0 && page <= getters.lastPage) {
@@ -115,11 +137,14 @@ export default createStore({
   getters: {
     msg: state => state.msg,
     isLoading: state => state.isLoading,
+    user: state => state.user,
+    isUserSignedIn: state => state.isUserSignedIn,
     page: state => state.page,
     lastPage: state => state.lastPage,
     restaurants: state => state.restaurants,
     restaurant: state => state.restaurant,
-    carts: state => state.carts,
-    getOrderByRestaurantId: state => id => state.carts.find(order => order.restaurantId == id && order.isSubmit == false),
+    cart: state => state.cart,
+    pendingCart: state => state.pendingCart,
+    getOrderByRestaurantId: state => id => state.pendingCart.find(order => order.restaurantId == id),
   }
 })

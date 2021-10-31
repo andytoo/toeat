@@ -31,7 +31,6 @@ export default {
         this.setRestaurant(resp.data)
       } catch (err) {
         this.setMsg(err.response.data.message)
-        setTimeout(() => { this.setMsg(null) }, 1500)
       }
       this.setLoading(false)
     }

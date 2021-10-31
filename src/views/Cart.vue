@@ -14,41 +14,57 @@
         
         <div v-if="isSent">
             <div class="grid-layout" >
-                <Order v-for="order in sentOrders" :key="order.id" :order="order" />
+                <Order v-for="order in cart" :key="order.id" :order="order" />
             </div>
         </div>
         <div v-if="!isSent">
             <div class="grid-layout" >
-                <Order v-for="order in pendingOrders" :key="order.id" :order="order" />
+                <Order v-for="order in pendingCart" :key="order.id" :order="order" />
             </div>
         </div>
-        
     </div>
 </template>
 
 <script>
 import Order from '@/components/Order.vue'
 
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
+
+import OrderService from '@/services/OrderService'
 
 export default {
     components: { Order },
-    created() {
-        this.sentOrders = this.carts.filter(order => order.isSubmit == true)
-        this.pendingOrders = this.carts.filter(order => order.isSubmit == false)
+    async created() {
+        this.setLoading(true)
+
+        const resp = await OrderService.getOrders(this.user.phone)
+
+        let orders = []
+
+        for (let i = 0; i < resp.data.length; i++) {
+            const order = { orderId: resp.data[i].orderid, 
+                            restaurantId: resp.data[i].restaurantid,
+                            restaurantName: resp.data[i].restaurantname,
+                            phone: resp.data[i].phone,
+                            itemList: JSON.parse(resp.data[i].itemlist.value),
+                            total: resp.data[i].total }
+            orders.push(order)
+        }
+
+        this.updateCart(orders)
+
+        this.setLoading(false)
     },
     data() {
         return {
-            isSent: true,
-            sentOrders: [],
-            pendingOrders: []
+            isSent: true
         }
     },
     methods: {
-       
+       ...mapActions(['updateCart', 'setLoading'])
     },
     computed: {
-        ...mapGetters(['carts'])
+        ...mapGetters(['user', 'cart', 'pendingCart'])
     }
 }
 </script>
