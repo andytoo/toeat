@@ -72,7 +72,9 @@ export default {
         this.setLoading(false)
     },
     unmounted(){
-        socket.close();
+        if (socket != null) {
+            socket.close();
+        }
     },
     methods: {
        ...mapActions(['updateCart', 'setLoading', 'updateOrder'])
