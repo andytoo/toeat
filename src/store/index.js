@@ -47,6 +47,9 @@ export default createStore({
     findRestaurantById: (state, id) => {
       state.restaurants.find(restaurant => { if (restaurant.id == id) state.restaurant = restaurant })
     },
+    updateOrder: (state, data) => { 
+      state.cart.find(order => { if (order.id == data.id) order.status = data.status })
+    },
     addOrderToPendingCart: (state, { order, isEmpty }) => {
       if (!isEmpty) {
         state.pendingCart.find(data => data = order)
@@ -121,6 +124,9 @@ export default createStore({
     },
     submitOrder({commit}, data) {
       commit('removeFromPendingCart', data.restaurantId)
+    },
+    updateOrder({commit}, data) {
+      commit('updateOrder', data)
     },
     updateCart({commit}, data) {
       commit('updateCart', data)

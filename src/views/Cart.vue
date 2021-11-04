@@ -31,37 +31,51 @@ import Order from '@/components/Order.vue'
 import { mapGetters, mapActions } from 'vuex'
 
 import OrderService from '@/services/OrderService'
+import TokenService from '@/services/TokenService'
+
+import SockJS from 'sockjs-client'
+import Stomp from 'stompjs'
+
+let socket = null
 
 export default {
     components: { Order },
+    data() {
+        return {
+            isSent: true,
+        }
+    },
     async created() {
+        socket = new SockJS(`${process.env.VUE_APP_API_URL}/ws`)
+        const client = Stomp.over(socket)
+        client.connect({}, frame => {
+            client.subscribe(`/topic/order/${TokenService.getPhone()}`, payload => {
+                const data = JSON.parse(payload.body)
+                this.updateOrder(data)
+            })
+        })
+
         this.setLoading(true)
-
         const resp = await OrderService.getOrders(this.user.phone)
-
         let orders = []
-
         for (let i = 0; i < resp.data.length; i++) {
-            const order = { orderId: resp.data[i].orderid, 
+            const order = { id: resp.data[i].orderid, 
                             restaurantId: resp.data[i].restaurantid,
                             restaurantName: resp.data[i].restaurantname,
                             phone: resp.data[i].phone,
+                            status: resp.data[i].status,
                             itemList: JSON.parse(resp.data[i].itemlist.value),
                             total: resp.data[i].total }
             orders.push(order)
         }
-
         this.updateCart(orders)
-
         this.setLoading(false)
     },
-    data() {
-        return {
-            isSent: true
-        }
+    unmounted(){
+        socket.close();
     },
     methods: {
-       ...mapActions(['updateCart', 'setLoading'])
+       ...mapActions(['updateCart', 'setLoading', 'updateOrder'])
     },
     computed: {
         ...mapGetters(['user', 'cart', 'pendingCart'])

@@ -1,5 +1,5 @@
 <template>
-    <div class="grid-container">
+    <div :class="{ 'bg-green-300' : order.status == '10'  }" class="grid-container">
         <h2 class="my-3 mx-2 pb-2 text-4xl font-light text-left border-b-2">{{ order.restaurantName }}</h2>
         <div class="my-3 mx-2">
             <div class="m-2 flex justify-between items-center text-xl" v-for="item in order.itemList" :key="item.name">
@@ -16,7 +16,7 @@
 
 <script>
 export default {
-    props: { order: Object },
+    props: { order: Object }
 }
 </script>
 
