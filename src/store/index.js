@@ -3,50 +3,60 @@ import TokenService from '@/services/TokenService'
 
 export default createStore({
   state: {
+    // App
     msg: null,
     isLoading: false,
-
-    // User
-    user: TokenService.getUser() || {},
-    isUserSignedIn: TokenService.isUserSignedIn() || false,
 
     // Pagination
     page: 1,
     totalPage: 1,
 
+    // User
+    user: TokenService.getUser() || {},
+    isUserSignedIn: TokenService.isUserSignedIn() || false,
+
     // Restaurant
     restaurants: [],
     restaurant: {},
 
-    // Cart
+    // Order & Cart
     cart: [],
     pendingCart: []
   },
   mutations: {
+    // App
     setMsg: (state, data) => {
       state.msg = data
     },
     setLoading: (state, data) => {
       state.isLoading = data
     },
-    setUser: (state, data) => {
-      state.user = data
-    },
-    setIsUserSignedIn: (state, data) => {
-      state.isUserSignedIn = data
-    },
-    setRestaurants: (state, data) => {
-      state.restaurants = data
-    },
+
+    // Pagination
     setPage: (state, data) => {
       state.page = data.page
     },
     setLastPage: (state, data) => {
       state.lastPage = data.lastPage
     },
+
+    // User
+    setUser: (state, data) => {
+      state.user = data
+    },
+    setIsUserSignedIn: (state, data) => {
+      state.isUserSignedIn = data
+    },
+
+    // Restaurant
+    setRestaurants: (state, data) => {
+      state.restaurants = data
+    },
     findRestaurantById: (state, id) => {
       state.restaurants.find(restaurant => { if (restaurant.id == id) state.restaurant = restaurant })
     },
+
+    // Order & Cart
     updateOrder: (state, data) => { 
       state.cart.find(order => { if (order.id == data.id) order.status = data.status })
     },
@@ -65,6 +75,7 @@ export default createStore({
     }
   },
   actions: {
+    // App
     setMsg: ({commit}, data) => {
       commit('setMsg', data)
       setTimeout(() => { commit('setMsg', null) }, 1500)
@@ -72,11 +83,22 @@ export default createStore({
     setLoading: ({commit}, data) => {
       commit('setLoading', data)
     },
+
+    // Pagination
+    goToPage: ({ dispatch, getters }, page) => {
+      if (page > 0 && page <= getters.lastPage) {
+        dispatch('loadRestaurants', page)
+      }
+    },
+
+    // User
     setUser: ({commit}, data) => {
       commit('setUser', data)
       if (Object.keys(data).length === 0) commit('setIsUserSignedIn', false)
       else commit('setIsUserSignedIn', true)
     },
+
+    // Restaurant
     setRestaurant: ({ commit }, data) => {
       commit('setRestaurants', data)
       // commit('setPage', data.page)
@@ -85,6 +107,8 @@ export default createStore({
     findRestaurantById: ({ commit }, id) => {
       commit('findRestaurantById', id)
     },
+
+    // Order & Cart
     addOrderToCart: ({ state, getters, commit }, { refs, id, name } ) => {
       let order = getters.getOrderByRestaurantId(id)
       let isEmpty = false
@@ -130,25 +154,29 @@ export default createStore({
     },
     updateCart({commit}, data) {
       commit('updateCart', data)
-    },
-    goToPage: ({ dispatch, getters }, page) => {
-      if (page > 0 && page <= getters.lastPage) {
-        dispatch('loadRestaurants', page)
-      }
     }
   },
   modules: {
 
   },
   getters: {
+    // App
     msg: state => state.msg,
     isLoading: state => state.isLoading,
-    user: state => state.user,
-    isUserSignedIn: state => state.isUserSignedIn,
+
+    // Pagination
     page: state => state.page,
     lastPage: state => state.lastPage,
+
+    // User
+    user: state => state.user,
+    isUserSignedIn: state => state.isUserSignedIn,
+    
+    // Restaurant
     restaurants: state => state.restaurants,
     restaurant: state => state.restaurant,
+
+    // Order & Cart
     cart: state => state.cart,
     pendingCart: state => state.pendingCart,
     getOrderByRestaurantId: state => id => state.pendingCart.find(order => order.restaurantId == id),
