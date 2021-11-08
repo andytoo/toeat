@@ -55,7 +55,7 @@ export default {
             })
         })
 
-        this.setLoading(true)
+        // this.setLoading(true)
         const resp = await OrderService.getOrders(this.user.phone)
         let orders = []
         for (let i = 0; i < resp.data.length; i++) {
@@ -69,7 +69,7 @@ export default {
             orders.push(order)
         }
         this.updateCart(orders)
-        this.setLoading(false)
+        // this.setLoading(false)
     },
     unmounted(){
         if (socket != null) {

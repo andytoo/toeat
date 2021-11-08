@@ -2,10 +2,10 @@ import api from '@/services/Api'
 
 export default {
     getRestaurants(page) {
-        return api.get('/api/restaurant/all')
+        return api.get('/restaurant/all')
     },
-    getImage(restaurantId) {
-        return api.get(`/api/restaurant/image/${restaurantId}`)
-    }
+    // getImage(restaurantId) {
+    //     return api.get(`/restaurant/image/${restaurantId}`)
+    // }
 }
 

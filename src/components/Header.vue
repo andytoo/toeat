@@ -20,7 +20,6 @@
         <router-link class="sidebar-menu" :to="{ name: 'Home' }">Home</router-link>
         <router-link class="sidebar-menu" :to="{ name: 'Cart' }">Cart</router-link>
         <router-link class="sidebar-menu" v-if="!isUserSignedIn" :to="{ name: 'SignIn' }">Sign In</router-link>
-        <router-link class="sidebar-menu" v-if="!isUserSignedIn" :to="{ name: 'SignIn' }">Sign Out</router-link>
         <button class="sidebar-menu mx-auto" v-if="isUserSignedIn" @click="signOut">Sign Out</button>
         <!-- <router-link class="sidebar-menu" :to="{ name: 'About' }">About</router-link> -->
     </div>

@@ -53,7 +53,7 @@ router.beforeEach((to, from, next) => {
   let loggedIn = store.state.isUserSignedIn
 
   if (authRequired && !loggedIn) {
-    return next('/signIn');
+    return next('/signIn')
   }
 
   next();

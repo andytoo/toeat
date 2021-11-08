@@ -11,30 +11,40 @@
 import { mapActions, mapGetters } from 'vuex'
 
 import OrderService from '@/services/OrderService'
+import TokenService from '@/services/TokenService'
 
 export default {
     props: ['total'],
     methods: {
-        ...mapActions(['setMsg', 'setLoading', 'submitOrder']),
+        ...mapActions(['setMsg', 'setLoading', 'updateOrder', 'submitOrder']),
         async addToCart() {
-            this.setLoading(true)
+            if (this.isUserSignedIn) {
+                this.setLoading(true)
 
-            try {
-                let cart = this.getOrderByRestaurantId(this.$route.params.id)
-                let resp = await OrderService.submitOrder((cart))
+                try {
+                    let cart = this.getOrderByRestaurantId(this.$route.params.id)
 
-                this.submitOrder(resp.data)
-                this.setMsg("Order Submited")
-            } catch (err) {
-                this.setMsg(err.response.data.message)
+                    if (cart.phone === undefined) {
+                        cart.phone = TokenService.getPhone()
+                    }
+
+                    let resp = await OrderService.submitOrder((cart))
+                    this.submitOrder(resp.data)
+                    this.setMsg("Order Submited")
+                } catch (err) {
+                    this.setMsg(err.response.data.message)
+                }
+
+                this.setLoading(false)
+                this.$router.push({ name: 'Cart' })
+            } else {
+                this.$router.push({ name: 'SignIn' })
+                this.setMsg("You have to Sign In First!")
             }
-
-            this.setLoading(false)
-            this.$router.push({ name: 'Cart' })
         },
     },
     computed: {
-        ...mapGetters(['getOrderByRestaurantId'])
+        ...mapGetters(['getOrderByRestaurantId', 'isUserSignedIn'])
     }
 }
 </script>
